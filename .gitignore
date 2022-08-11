@@ -2,6 +2,10 @@
 
 # dependencies
 /frontend/node_modules
+*.swp
+*.swo
+.idea/*
+*.pyc
 /.pnp
 .pnp.js
 
