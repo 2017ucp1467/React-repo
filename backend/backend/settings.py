@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ecommerce',
-        'USER': 'root',
-        'PASSWORD':'root',
-        'HOST': 'localhost',
+        'NAME': os.environ.get('ecom_db_name'),
+        'USER': os.environ.get('ecom_db_user'),
+        'PASSWORD':os.environ.get('ecom_db_password'),
+        'HOST': os.environ.get('ecom_db_host'),
     }
 }
 
@@ -133,8 +133,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True #set to true to allow request from any host to our api
 
-AWS_ACCESS_KEY_ID = 'AKIAY4SF47VFGLRRAT6A'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = 'singhshopbucket'
 AWS_HOST = 'https://s3.amazonaws.com/'
 
