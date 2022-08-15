@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .products import products
+from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from .serializers import ProductSerializer
 # Create your views here.
 
 def getRoutes(request):
@@ -11,15 +12,12 @@ def getRoutes(request):
 
 @api_view(['GET'])
 def getProducts(request):
-    print('request served')
-    return Response(products)
+    products = Product.objects.all()
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def getProduct(request,pk):
-    product = None
-    print('pk from request is: ',pk)
-    for i in products:
-        if i['_id'] == pk:
-            product = i
-            break
-    return Response(product)
+    product = Product.objects.get(pk=pk)
+    serializer = ProductSerializer(product, many=False)
+    return Response(serializer.data)

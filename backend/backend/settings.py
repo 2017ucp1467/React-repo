@@ -132,3 +132,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True #set to true to allow request from any host to our api
+
+AWS_ACCESS_KEY_ID = 'AKIAY4SF47VFGLRRAT6A'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'singhshopbucket'
+AWS_HOST = 'https://s3.amazonaws.com/'
+
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'

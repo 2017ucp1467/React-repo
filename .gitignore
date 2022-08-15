@@ -8,6 +8,7 @@
 *.pyc
 /.pnp
 .pnp.js
+/ecom_env
 
 # testing
 /coverage
