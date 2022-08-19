@@ -9,11 +9,14 @@ import { configureStore } from "@reduxjs/toolkit";
 // const middleware = [thunk];
 import productListReducer from "./features/productList/productListSlice";
 import productDetailReducer from "./features/productList/productDetailSlice";
+import cartReducer from "./features/cart/cartSlice";
+
 
 const store = configureStore({
   reducer: {
     productList: productListReducer,
     productDetail: productDetailReducer,
+    cart: cartReducer,
   },
 });
 

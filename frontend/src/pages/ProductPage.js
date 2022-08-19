@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   Row,
   Col,
@@ -19,10 +19,15 @@ function ProductPage() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [qty, setQty] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getProductDetail(id));
   }, [id, dispatch]);
+
+  const addToCartHandler = () => {
+    navigate(`/cart/${id}?qty=${qty}`);
+  };
 
   const { product, isLoading, error } = useSelector(
     (state) => state.productDetail
@@ -104,6 +109,7 @@ function ProductPage() {
 
                 <ListGroup.Item>
                   <Button
+                    onClick={addToCartHandler}
                     className='col-12'
                     type='button'
                     disabled={product.countInStock === 0}
