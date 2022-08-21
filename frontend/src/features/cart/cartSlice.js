@@ -28,29 +28,29 @@ const CartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    // addItem: (state, action) => {
-    //   const item = action.payload;
-    //   const existItem = state.cartItems.find((x) => x.id === item.id);
-    //   if (existItem) {
-    //     state.cartItems = state.cartItems.map((x) =>
-    //       x.id === existItem ? item : x
-    //     );
-    //   } else {
-    //     state.cartItems.push(item);
-    //   }
-    // },
+    addItem: (state, action) => {
+      //this action will be called only if we want to change qty from cart itself
+      const item = action.payload;
+      const existItem = state.cartItems.find((x) => x._id === item.id);
+      existItem.qty = item.qty;
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+    },
     removeItem: (state, action) => {
-      state.cartItems = state.cartItems.filter((x) => x.id !== action.payload);
+      console.log("action payload:", action.payload);
+      const newCart = state.cartItems.filter((x) => x._id !== action.payload);
+      state.cartItems = newCart;
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
     clearCart: (state) => {
       state.cartItems = [];
+      localStorage.removeItem("cartItems");
     },
   },
   extraReducers: {
     [addToCart.fulfilled]: (state, action) => {
       const item = action.payload;
       const existItem = state.cartItems.find((x) => x._id === item._id);
-    //   console.log("exist item", existItem); its returning a proxy object on console
+      //   console.log("exist item", existItem); its returning a proxy object on console
 
       if (existItem) {
         // state.cartItems.map((x) => (x.id === existItem._id ? item : x)); this is not working need to debud why?
@@ -58,11 +58,11 @@ const CartSlice = createSlice({
       } else {
         state.cartItems.push(item);
       }
-        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
   },
 });
 
-export const { removeItem, clearCart } = CartSlice.actions;
+export const { addItem, removeItem, clearCart } = CartSlice.actions;
 
 export default CartSlice.reducer;
