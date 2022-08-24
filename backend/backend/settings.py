@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',#for creating rest api with minimum effort
     'corsheaders', #for fixing cors error in django when frontend server is at different host or port
     'storages', #for uploading images to s3 bucket
+    'users.apps.UsersConfig',
 ]
 
 REST_FRAMEWORK = {

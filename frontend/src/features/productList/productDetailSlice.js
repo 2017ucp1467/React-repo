@@ -13,7 +13,7 @@ export const getProductDetail = createAsyncThunk(
       const response = await axios.get(`/api/products/${id}`);
       return response.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue(err);
+      return thunkAPI.rejectWithValue(err.response.data.detail);
     }
   }
 );
@@ -22,13 +22,16 @@ const productDetailSlice = createSlice({
   name: "productDetail",
   initialState,
   extraReducers: {
+    [getProductDetail.pending]: (state) => {
+      state.isLoading = true;
+    },
     [getProductDetail.fulfilled]: (state, action) => {
       state.product = action.payload;
       state.isLoading = false;
     },
     [getProductDetail.rejected]: (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message;
+      state.error = action.payload;
     },
   },
 });
