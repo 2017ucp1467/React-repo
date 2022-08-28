@@ -7,6 +7,10 @@ import HomePage from "./pages/HomePage";
 import ProductPage from "./pages/ProductPage";
 import CartPage from "./pages/CartPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ProfilePage from "./pages/ProfilePage";
+import ShippingPage from "./pages/ShippingPage";
+import PaymentPage from "./pages/PaymentPage";
 
 function App() {
   return (
@@ -16,10 +20,14 @@ function App() {
         <Container>
           <Routes>
             <Route path='/' element={<HomePage />} exact />
-            <Route path='/login' element={<LoginPage/>}/>
+            <Route path='/login' element={<LoginPage />} />
+            <Route path='/register' element={<RegisterPage />} />
+            <Route path='/profile' element={<ProfilePage />} />
             <Route path='/product/:id' element={<ProductPage />} />
             <Route path='/cart' element={<CartPage />} />
             <Route path='/cart/:id' element={<CartPage />} />
+            <Route path='/shipping' element={<ShippingPage />} />
+            <Route path='/payment' element={<PaymentPage />} />
             {/*the question marks makes the id parameter optional */}
           </Routes>
         </Container>
