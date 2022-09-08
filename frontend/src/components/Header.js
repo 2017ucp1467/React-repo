@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { LinkContainer } from "react-router-bootstrap";
 import { userLogout } from "../features/user/userSlice";
 import { getUserDetail } from "../features/user/userDetailSlice";
+import { clearOrder, getOrderList } from "../features/order/orderSlice";
+import { clearUserList } from "../features/user/adminUserSlice";
 function Header() {
   const user = useSelector((state) => state.user);
   const { userInfo } = user;
@@ -11,10 +13,13 @@ function Header() {
 
   const logoutHandler = () => {
     dispatch(userLogout());
+    dispatch(clearOrder());
+    dispatch(clearUserList());
   };
 
   const showProfile = () => {
     dispatch(getUserDetail());
+    dispatch(getOrderList());
   };
   return (
     <header>
@@ -49,6 +54,26 @@ function Header() {
                     <i className='fas fa-user'></i>Login
                   </Nav.Link>
                 </LinkContainer>
+              )}
+
+              {userInfo && userInfo.isAdmin && (
+                <NavDropdown title='Admin' id='adminmenu'>
+                  <LinkContainer to='/admin/users/'>
+                    <NavDropdown.Item onClick={showProfile}>
+                      Users
+                    </NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/admin/products/'>
+                    <NavDropdown.Item onClick={showProfile}>
+                      Products
+                    </NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/admin/orders/'>
+                    <NavDropdown.Item onClick={showProfile}>
+                      Orders
+                    </NavDropdown.Item>
+                  </LinkContainer>
+                </NavDropdown>
               )}
             </Nav>
           </Navbar.Collapse>
