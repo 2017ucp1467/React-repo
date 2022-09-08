@@ -4,14 +4,25 @@ import { Table, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
-import { getUserList } from "../features/user/adminUserSlice";
+import AdminUserEditModal from "../components/AdminUserEditModal";
+import {
+  getUserList,
+  deleteUser,
+  getUserByAdmin,
+} from "../features/user/adminUserSlice";
 import { useNavigate } from "react-router-dom";
 
 function UserListPage() {
+  const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { isLoading, error, userList } = useSelector((state) => state.admin);
+  const {
+    isLoading,
+    error,
+    userList,
+    success: successDelete,
+  } = useSelector((state) => state.admin);
   const { userInfo } = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -20,10 +31,18 @@ function UserListPage() {
     } else {
       navigate("/login");
     }
-  }, [dispatch, navigate, userInfo]);
+  }, [dispatch, navigate, successDelete]);
 
   const deleteUserHandler = (id) => {
     console.log("user deleted");
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      dispatch(deleteUser(id));
+    }
+  };
+
+  const updateUserHandler = (id) => {
+    dispatch(getUserByAdmin(id));
+    setShowModal(true);
   };
 
   return (
@@ -34,7 +53,7 @@ function UserListPage() {
       ) : error ? (
         <Message variant='danger'>{error}</Message>
       ) : (
-        <Table striped bordered hover response className='table-sm'>
+        <Table striped bordered hover responsive className='table-sm'>
           <thead>
             <tr>
               <th>ID</th>
@@ -58,11 +77,15 @@ function UserListPage() {
                   )}
                 </td>
                 <td>
-                  <LinkContainer to={`/admin/user/${user._id}`}>
-                    <Button variant='light' className='btn-sm'>
-                      <i className='fas fa-edit'></i>
-                    </Button>
-                  </LinkContainer>
+                  {/* <LinkContainer to={`/admin/user/${user._id}`}> */}
+                  <Button
+                    variant='light'
+                    className='btn-sm'
+                    onClick={() => updateUserHandler(user._id)}
+                  >
+                    <i className='fas fa-edit'></i>
+                  </Button>
+                  {/* </LinkContainer> */}
                   <Button
                     variant='danger'
                     className='btn-sm'
@@ -76,6 +99,7 @@ function UserListPage() {
           </tbody>
         </Table>
       )}
+      <AdminUserEditModal showModal={showModal} setShowModal={setShowModal} />
     </div>
   );
 }
