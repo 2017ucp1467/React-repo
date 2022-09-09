@@ -1,56 +1,49 @@
 import React, { useState, useEffect } from "react";
-import { LinkContainer } from "react-router-bootstrap";
 import { Table, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
-import AdminUserEditModal from "../components/AdminUserEditModal";
-import {
-  getUserList,
-  deleteUser,
-  getUserByAdmin,
-} from "../features/user/adminUserSlice";
+import ProductEditModal from "../components/ProductEditModal";
+import { deleteProduct } from "../features/user/adminUserSlice";
+import { getProductList } from "../features/productList/productListSlice";
+import { getProductDetail } from "../features/productList/productDetailSlice";
 import { useNavigate } from "react-router-dom";
 
-function UserListPage() {
+function ProductListPage() {
   const [showModal, setShowModal] = useState(false);
+
+  const { isLoading, error, products } = useSelector(
+    (state) => state.productList
+  );
+  const { product } = useSelector((state) => state.productDetail);
+  const { userInfo } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {
-    isLoading,
-    error,
-    userList,
-    success: successDelete,
-    userDetail,
-  } = useSelector((state) => state.admin);
-  const { userInfo } = useSelector((state) => state.user);
-
   useEffect(() => {
     if (userInfo && userInfo.isAdmin) {
-      dispatch(getUserList());
+      dispatch(getProductList());
     } else {
       navigate("/login");
     }
-  }, [dispatch, navigate, userInfo, successDelete]);
+  }, [dispatch, userInfo, navigate]);
 
-  const deleteUserHandler = (id) => {
-    console.log("user deleted");
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      dispatch(deleteUser(id));
-    }
-  };
-
-  const updateUserHandler = (id) => {
-    if (!userDetail || userDetail._id !== id) {
-      dispatch(getUserByAdmin(id));
+  const updateProductHandler = (id) => {
+    if (!product || product._id !== id) {
+      dispatch(getProductDetail(id));
     }
     setShowModal(true);
   };
 
+  const deleteProductHandler = (id) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      dispatch(deleteProduct(id));
+    }
+  };
+
   return (
     <div>
-      <h1>Users</h1>
+      <h1>Products</h1>
       {isLoading ? (
         <Loader />
       ) : error ? (
@@ -61,30 +54,30 @@ function UserListPage() {
             <tr>
               <th>ID</th>
               <th>Name</th>
-              <th>Email</th>
-              <th>ADMIN</th>
+              <th>Price</th>
+              <th>Stock</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {userList.map((user) => (
-              <tr key={user._id}>
-                <td>{user._id}</td>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
+            {products.map((product) => (
+              <tr key={product._id}>
+                <td>{product._id}</td>
+                <td>{product.name}</td>
+                <td>${product.price}</td>
                 <td>
-                  {user.isAdmin ? (
+                  {product.countInStock ? (
                     <i className='fas fa-check' style={{ color: "green" }}></i>
                   ) : (
                     <i className='fas fa-x' style={{ color: "red" }}></i>
                   )}
                 </td>
                 <td>
-                  {/* <LinkContainer to={`/admin/user/${user._id}`}> */}
+                  {/* <LinkContainer to={`/admin/product/${product._id}`}> */}
                   <Button
                     variant='light'
                     className='btn-sm'
-                    onClick={() => updateUserHandler(user._id)}
+                    onClick={() => updateProductHandler(product._id)}
                   >
                     <i className='fas fa-edit'></i>
                   </Button>
@@ -92,7 +85,7 @@ function UserListPage() {
                   <Button
                     variant='danger'
                     className='btn-sm'
-                    onClick={() => deleteUserHandler(user._id)}
+                    onClick={() => deleteProductHandler(product._id)}
                   >
                     <i className='fas fa-trash'></i>
                   </Button>
@@ -102,9 +95,9 @@ function UserListPage() {
           </tbody>
         </Table>
       )}
-      <AdminUserEditModal showModal={showModal} setShowModal={setShowModal} />
+      <ProductEditModal showModal={showModal} setShowModal={setShowModal} />
     </div>
   );
 }
 
-export default UserListPage;
+export default ProductListPage;

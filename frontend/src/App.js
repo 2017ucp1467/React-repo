@@ -14,6 +14,8 @@ import PaymentPage from "./pages/PaymentPage";
 import PlaceOrderPage from "./pages/PlaceOrderPage";
 import OrderPage from "./pages/OrderPage";
 import UserListPage from "./pages/UserListPage";
+import ProductListPage from "./pages/ProductListPage";
+
 
 function App() {
   return (
@@ -34,6 +36,7 @@ function App() {
             <Route path='/placeorder' element={<PlaceOrderPage />} />
             <Route path='/order/detail/:id' element={<OrderPage />} />
             <Route path='/admin/users' element={<UserListPage />} />
+            <Route path='/admin/products' element={<ProductListPage />} />
             {/*the question marks makes the id parameter optional */}
           </Routes>
         </Container>

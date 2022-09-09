@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const initialState = { isLoading: true };
+
 export const getUserList = createAsyncThunk(
   "getAllUsers", //used for generating actions internally,i.e, getAllUsers/pending
   async (arg, thunkAPI) => {
@@ -73,7 +75,7 @@ export const updateUserByAdmin = createAsyncThunk(
         Authorization: `Bearer ${userInfo.token}`,
       };
       console.log("update user data", updateUserInfo);
-      const response = await axios.post(
+      const response = await axios.put(
         `/users/update/${updateUserInfo.id}/`,
         updateUserInfo,
         { headers }
@@ -86,7 +88,26 @@ export const updateUserByAdmin = createAsyncThunk(
   }
 );
 
-const initialState = { isLoading: true };
+export const deleteProduct = createAsyncThunk(
+  'deleteProduct',
+  async (id,thunkAPI) => {
+    const {
+      user: { userInfo },
+    } = thunkAPI.getState();
+    try{
+      const headers = {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${userInfo.token}`,
+      };
+      const response = await axios.delete(`/products/delete/${id}`,{headers});
+      return response.data;
+    }catch(err){
+      return thunkAPI.rejectWithValue(err.message)
+    }
+
+  }
+)
+
 
 const adminUserSlice = createSlice({
   name: "admin", //used for generating actions internally, i.e, admin/reducername
@@ -131,6 +152,17 @@ const adminUserSlice = createSlice({
       state.modalLoading = false;
       state.getUserError = action.payload;
       state.userDetail = null;
+    },
+    [deleteProduct.pending]: (state) => {
+      state.isLoading = true;
+    },
+    [deleteProduct.fulfilled]: (state, action) => {
+      state.isLoading = false;
+      state.productDeleteSuccess = true;
+    },
+    [deleteProduct.rejected]: (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
     },
   },
 });

@@ -6,31 +6,27 @@ import FormContainer from "./FormContainer";
 import Loader from "./Loader";
 import Message from "./Message";
 
-function AdminUserEditModal({ showModal, setShowModal }) {
-  const {
-    modalLoading: isLoading,
-    getUserError: error,
-    userDetail,
-  } = useSelector((state) => state.admin);
-
+function ProductEditModal({ showModal, setShowModal }) {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [isAdmin, setIsAdmin] = useState("");
+  const [price, setPrice] = useState("");
+  const [countInStock, setCountInStock] = useState(0);
+  const [image, setImage] = useState(null);
 
-  const dispatch = useDispatch();
+  const { isLoading, error, product } = useSelector(
+    (state) => state.productDetail
+  );
 
   useEffect(() => {
-    if (!isLoading && userDetail) {
-      setName(userDetail.name);
-      setEmail(userDetail.email);
-      setIsAdmin(userDetail.isAdmin);
+    if (!isLoading && product) {
+      setName(product.name);
+      setPrice(product.price);
+      setCountInStock(product.countInStock);
     }
-  }, [isLoading, userDetail]);
+  }, [isLoading, product]);
 
   const submitHandler = (e) => {
     e.preventDefault();
-    dispatch(updateUserByAdmin({ name, email, isAdmin, id: userDetail._id }));
-    setShowModal(false);
+    console.log("Product Info updated.");
   };
 
   return (
@@ -40,10 +36,10 @@ function AdminUserEditModal({ showModal, setShowModal }) {
       ) : error ? (
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>Edit User Information</Modal.Title>
+            <Modal.Title>Edit Product Information</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>Failed to fetch user details from backend.</p>
+            <p>Failed to fetch Product details from backend.</p>
             <Message variant='danger'>{error}</Message>
           </Modal.Body>
           <Modal.Footer>
@@ -60,7 +56,7 @@ function AdminUserEditModal({ showModal, setShowModal }) {
           onHide={() => setShowModal(false)}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Edit User Information</Modal.Title>
+            <Modal.Title>Edit Product Information</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <FormContainer>
@@ -78,27 +74,47 @@ function AdminUserEditModal({ showModal, setShowModal }) {
                     ></Form.Control>
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} controlId='email'>
+                <Form.Group as={Row} controlId='price'>
                   <Form.Label column sm={2}>
-                    Email Address:
+                    Price:
                   </Form.Label>
                   <Col sm={10} className='p-4'>
                     <Form.Control
-                      type='email'
-                      placeholder='Enter Email'
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      type='number'
+                      placeholder='Enter Price'
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
                     ></Form.Control>
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} controlId='admin'>
-                  <Col>
-                    <Form.Check
-                      type='checkbox'
-                      label='IsAdmin'
-                      checked={isAdmin}
-                      onChange={(e) => setIsAdmin(e.target.checked)}
-                    ></Form.Check>
+                <Form.Group as={Row} controlId='stockCount'>
+                  <Form.Label column sm={2}>
+                    Stock:
+                  </Form.Label>
+                  <Col sm={10} className='p-4'>
+                    <Form.Control
+                      type='number'
+                      placeholder='Enter Stock'
+                      value={countInStock}
+                      onChange={(e) => setCountInStock(e.target.value)}
+                    ></Form.Control>
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId='productImg'>
+                  <Form.Label column sm={2}>
+                    Product Img:
+                  </Form.Label>
+                  <Col sm={10} className='p-4'>
+                    <Form.Control
+                      type='file'
+                      name='image'
+                      onChange={(e) => setImage(e.target.files[0])}
+                    ></Form.Control>
+                    <h10 style={{ color: "red" }}>
+                      <small>
+                        *Uploading a new Image will overwrite the existing one.
+                      </small>
+                    </h10>
                   </Col>
                 </Form.Group>
               </Form>
@@ -108,11 +124,7 @@ function AdminUserEditModal({ showModal, setShowModal }) {
             <Button variant='secondary' onClick={() => setShowModal(false)}>
               Close
             </Button>
-            <Button
-              type='submit'
-              onClick={submitHandler}
-              disabled={!userDetail}
-            >
+            <Button type='submit' onClick={submitHandler} disabled={!product}>
               Save Changes
             </Button>
           </Modal.Footer>
@@ -122,4 +134,4 @@ function AdminUserEditModal({ showModal, setShowModal }) {
   );
 }
 
-export default AdminUserEditModal;
+export default ProductEditModal;
