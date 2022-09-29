@@ -1,32 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button } from "react-bootstrap";
+import { Table, Button, Row, Col } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import ProductEditModal from "../components/ProductEditModal";
-import { deleteProduct } from "../features/user/adminUserSlice";
 import { getProductList } from "../features/productList/productListSlice";
-import { getProductDetail } from "../features/productList/productDetailSlice";
+import {
+  getProductDetail,
+  clearProductDetail,
+  deleteProduct,
+} from "../features/productList/productDetailSlice";
 import { useNavigate } from "react-router-dom";
 
 function ProductListPage() {
   const [showModal, setShowModal] = useState(false);
+  const [isCreate, setIsCreate] = useState(false);
 
   const { isLoading, error, products } = useSelector(
     (state) => state.productList
   );
-  const { product } = useSelector((state) => state.productDetail);
+  const { product} = useSelector((state) => state.productDetail);
   const { userInfo } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (userInfo && userInfo.isAdmin) {
-      dispatch(getProductList());
+      if (products.length === 0) {
+        dispatch(getProductList());
+      }
     } else {
       navigate("/login");
     }
-  }, [dispatch, userInfo, navigate]);
+  }, [dispatch, userInfo, navigate, products]);
 
   const updateProductHandler = (id) => {
     if (!product || product._id !== id) {
@@ -35,15 +41,31 @@ function ProductListPage() {
     setShowModal(true);
   };
 
+  const createProductHandler = () => {
+    dispatch(clearProductDetail());
+    setIsCreate(true);
+    setShowModal(true);
+  };
+
   const deleteProductHandler = (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       dispatch(deleteProduct(id));
+      navigate("/admin/products");
     }
   };
 
   return (
     <div>
-      <h1>Products</h1>
+      <Row className='align-items-center'>
+        <Col>
+          <h1>Products</h1>
+        </Col>
+        <Col className='text-end'>
+          <Button className='my-3' onClick={createProductHandler}>
+            <i className='fas fa-plus'></i>Create Product
+          </Button>
+        </Col>
+      </Row>
       {isLoading ? (
         <Loader />
       ) : error ? (
@@ -55,7 +77,9 @@ function ProductListPage() {
               <th>ID</th>
               <th>Name</th>
               <th>Price</th>
-              <th>Stock</th>
+              <th>Brand</th>
+              <th>Category</th>
+              <th>InStock</th>
               <th></th>
             </tr>
           </thead>
@@ -65,6 +89,8 @@ function ProductListPage() {
                 <td>{product._id}</td>
                 <td>{product.name}</td>
                 <td>${product.price}</td>
+                <td>{product.brand}</td>
+                <td>{product.category}</td>
                 <td>
                   {product.countInStock ? (
                     <i className='fas fa-check' style={{ color: "green" }}></i>
@@ -95,7 +121,12 @@ function ProductListPage() {
           </tbody>
         </Table>
       )}
-      <ProductEditModal showModal={showModal} setShowModal={setShowModal} />
+      <ProductEditModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        isCreate={isCreate}
+        setIsCreate={setIsCreate}
+      />
     </div>
   );
 }

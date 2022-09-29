@@ -14,7 +14,7 @@ import { PayPalButton } from "react-paypal-button-v2";
 function OrderPage() {
   const { id } = useParams();
   const order = useSelector((state) => state.order);
-  const { isLoading, error, orderDetail, paymentSuccess } = order;
+  const { detailLoading:isLoading, error, orderDetail, paymentSuccess } = order;
   let orderInfo = {};
   // const CLIENT_ID =
   //   "AWJZtfOInUTT4pt59tySlrGPZJGKXc2cxJYgvKgRnuDAn4eMZkE4rtA-rOuhSFbyMF1aUi__GpJ6VcPT";

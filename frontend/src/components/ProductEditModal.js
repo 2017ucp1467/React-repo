@@ -1,31 +1,65 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUserByAdmin } from "../features/user/adminUserSlice";
 import FormContainer from "./FormContainer";
 import Loader from "./Loader";
 import Message from "./Message";
+import {
+  createProduct,
+  updateProductDetail,
+} from "../features/productList/productDetailSlice";
 
-function ProductEditModal({ showModal, setShowModal }) {
+function ProductEditModal({ showModal, setShowModal, isCreate, setIsCreate }) {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [countInStock, setCountInStock] = useState(0);
-  const [image, setImage] = useState(null);
+  const [brand, setBrand] = useState("");
+  const [category, setCategory] = useState("");
+  const [image, setImage] = useState("");
+
+  const dispatch = useDispatch();
 
   const { isLoading, error, product } = useSelector(
     (state) => state.productDetail
   );
 
   useEffect(() => {
-    if (!isLoading && product) {
+    if (!isLoading && product && !isCreate) {
       setName(product.name);
       setPrice(product.price);
       setCountInStock(product.countInStock);
+      setBrand(product.brand);
+      setCategory(product.category);
+    } else {
+      setName("");
+      setPrice("");
+      setCountInStock("");
+      setBrand("");
+      setCategory("");
     }
-  }, [isLoading, product]);
+  }, [isLoading, product, isCreate]);
 
-  const submitHandler = (e) => {
-    e.preventDefault();
+  const submitHandler = (id) => {
+    if (isCreate) {
+      dispatch(
+        createProduct({ name, price, countInStock, brand, category, image })
+      );
+      setIsCreate(false);
+      setShowModal(false);
+    } else {
+      dispatch(
+        updateProductDetail({
+          id,
+          name,
+          price,
+          countInStock,
+          brand,
+          category,
+          image,
+        })
+      );
+      setShowModal(false);
+    }
     console.log("Product Info updated.");
   };
 
@@ -34,7 +68,13 @@ function ProductEditModal({ showModal, setShowModal }) {
       {isLoading ? (
         <Loader />
       ) : error ? (
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal
+          show={showModal}
+          onHide={() => {
+            setShowModal(false);
+            setIsCreate(false);
+          }}
+        >
           <Modal.Header closeButton>
             <Modal.Title>Edit Product Information</Modal.Title>
           </Modal.Header>
@@ -43,7 +83,13 @@ function ProductEditModal({ showModal, setShowModal }) {
             <Message variant='danger'>{error}</Message>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant='primary' onClick={() => setShowModal(false)}>
+            <Button
+              variant='primary'
+              onClick={() => {
+                setShowModal(false);
+                setIsCreate(false);
+              }}
+            >
               Close
             </Button>
           </Modal.Footer>
@@ -53,10 +99,15 @@ function ProductEditModal({ showModal, setShowModal }) {
           size='lg'
           fullscreen='md-down'
           show={showModal}
-          onHide={() => setShowModal(false)}
+          onHide={() => {
+            setShowModal(false);
+            setIsCreate(false);
+          }}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Edit Product Information</Modal.Title>
+            <Modal.Title>
+              {isCreate ? "Create Product" : "Edit Product Information"}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <FormContainer>
@@ -87,6 +138,32 @@ function ProductEditModal({ showModal, setShowModal }) {
                     ></Form.Control>
                   </Col>
                 </Form.Group>
+                <Form.Group as={Row} controlId='brand'>
+                  <Form.Label column sm={2}>
+                    Brand:
+                  </Form.Label>
+                  <Col sm={10} className='p-4'>
+                    <Form.Control
+                      type='text'
+                      placeholder='Enter Brand'
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                    ></Form.Control>
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId='category'>
+                  <Form.Label column sm={2}>
+                    Category:
+                  </Form.Label>
+                  <Col sm={10} className='p-4'>
+                    <Form.Control
+                      type='text'
+                      placeholder='Enter Category'
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                    ></Form.Control>
+                  </Col>
+                </Form.Group>
                 <Form.Group as={Row} controlId='stockCount'>
                   <Form.Label column sm={2}>
                     Stock:
@@ -110,21 +187,32 @@ function ProductEditModal({ showModal, setShowModal }) {
                       name='image'
                       onChange={(e) => setImage(e.target.files[0])}
                     ></Form.Control>
-                    <h10 style={{ color: "red" }}>
-                      <small>
+
+                    {!isCreate && (
+                      <small style={{ color: "red" }}>
                         *Uploading a new Image will overwrite the existing one.
                       </small>
-                    </h10>
+                    )}
                   </Col>
                 </Form.Group>
               </Form>
             </FormContainer>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant='secondary' onClick={() => setShowModal(false)}>
+            <Button
+              variant='secondary'
+              onClick={() => {
+                setShowModal(false);
+                setIsCreate(false);
+              }}
+            >
               Close
             </Button>
-            <Button type='submit' onClick={submitHandler} disabled={!product}>
+            <Button
+              type='submit'
+              onClick={() => submitHandler(product._id)}
+              disabled={!product}
+            >
               Save Changes
             </Button>
           </Modal.Footer>

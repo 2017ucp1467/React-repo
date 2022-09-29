@@ -1,8 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { getProductList } from "./productListSlice";
 
 const initialState = {
   product: {},
+  Success: false,
 };
 
 export const getProductDetail = createAsyncThunk(
@@ -17,9 +19,91 @@ export const getProductDetail = createAsyncThunk(
   }
 );
 
+export const createProduct = createAsyncThunk(
+  "createProduct",
+  async (product, thunkAPI) => {
+    const {
+      user: { userInfo },
+    } = thunkAPI.getState();
+    try {
+      const headers = {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${userInfo.token}`,
+      };
+      const formdata = new FormData();
+      formdata.append("image", product.image);
+      formdata.append("name", product.name);
+      formdata.append("brand", product.brand);
+      formdata.append("category", product.category);
+      formdata.append("price", product.price);
+      formdata.append("countInStock", product.countInStock);
+      const response = await axios.post("/api/products/create/", formdata, {
+        headers,
+      });
+      return response.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.respose.data.detail);
+    }
+  }
+);
+
+export const updateProductDetail = createAsyncThunk(
+  "updateProduct",
+  async (data, thunkAPI) => {
+    console.log("data :", data);
+    const {
+      user: { userInfo },
+    } = thunkAPI.getState();
+    try {
+      const headers = {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${userInfo.token}`,
+      };
+      const response = await axios.put(
+        `/api/products/update/${data.id}/`,
+        data,
+        {
+          headers,
+        }
+      );
+      thunkAPI.dispatch(getProductList());
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.respose.data.detail);
+    }
+  }
+);
+
+export const deleteProduct = createAsyncThunk(
+  "deleteProduct",
+  async (id, thunkAPI) => {
+    const {
+      user: { userInfo },
+    } = thunkAPI.getState();
+    try {
+      const headers = {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${userInfo.token}`,
+      };
+      const response = await axios.delete(`/api/products/delete/${id}/`, {
+        headers,
+      });
+      thunkAPI.dispatch(getProductList());
+      return response.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
 const productDetailSlice = createSlice({
   name: "productDetail",
   initialState,
+  reducers: {
+    clearProductDetail: (state) => {
+      state.product = {};
+    },
+  },
   extraReducers: {
     [getProductDetail.pending]: (state) => {
       state.isLoading = true;
@@ -32,7 +116,34 @@ const productDetailSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
+    [updateProductDetail.pending]: (state) => {
+      state.isLoading = true;
+    },
+    [updateProductDetail.fulfilled]: (state, action) => {
+      state.isLoading = false;
+      state.product = action.payload;
+      state.Success = true;
+    },
+    [updateProductDetail.rejected]: (state, action) => {
+      state.isLoading = false;
+      state.Success = false;
+      state.error = action.payload;
+    },
+    [deleteProduct.pending]: (state) => {
+      state.isLoading = true;
+    },
+    [deleteProduct.fulfilled]: (state, action) => {
+      state.isLoading = false;
+      state.Success = true;
+    },
+    [deleteProduct.rejected]: (state, action) => {
+      state.isLoading = false;
+      state.Success = false;
+      state.error = action.payload;
+    },
   },
 });
+
+export const { clearProductDetail } = productDetailSlice.actions;
 
 export default productDetailSlice.reducer;

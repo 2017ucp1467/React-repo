@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const initialState = { isLoading: true };
+const initialState = { detailLoading: true, orderList: [] };
 
 export const createOrder = createAsyncThunk(
   "order/create",
@@ -24,8 +24,8 @@ export const createOrder = createAsyncThunk(
 );
 
 export const getOrderList = createAsyncThunk(
-  'myOrders',
-  async (arg,thunkAPI) => {
+  "myOrders",
+  async (arg, thunkAPI) => {
     const {
       user: { userInfo },
     } = thunkAPI.getState();
@@ -34,7 +34,7 @@ export const getOrderList = createAsyncThunk(
         "Content-type": "application/json",
         Authorization: `Bearer ${userInfo.token}`,
       };
-      const response = await axios.get(`/order/myorders`, { headers });
+      const response = await axios.get(`/order/myorders/`, { headers });
       console.log("response for orderList", response);
       return response.data;
     } catch (err) {
@@ -42,7 +42,7 @@ export const getOrderList = createAsyncThunk(
       return thunkAPI.rejectWithValue(err.response.data.detail);
     }
   }
-)
+);
 
 export const getOrderDetail = createAsyncThunk(
   "orderInfo",
@@ -87,6 +87,28 @@ export const payOrder = createAsyncThunk(
   }
 );
 
+export const getAdminOrderList = createAsyncThunk(
+  "allOrders",
+  async (arg, thunkAPI) => {
+    const {
+      user: { userInfo },
+    } = thunkAPI.getState();
+    try {
+      const headers = {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${userInfo.token}`,
+      };
+      const response = await axios.get("/order/all/", {
+        headers,
+      });
+      console.log("response for all orders", response.data);
+      return response.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response.data.detail);
+    }
+  }
+);
+
 const orderSlice = createSlice({
   name: "order",
   initialState,
@@ -111,14 +133,14 @@ const orderSlice = createSlice({
       state.success = false;
     },
     [getOrderDetail.pending]: (state) => {
-      state.isLoading = true;
+      state.detailLoading = true;
     },
     [getOrderDetail.fulfilled]: (state, action) => {
-      state.isLoading = false;
+      state.detailLoading = false;
       state.orderDetail = action.payload;
     },
     [getOrderDetail.rejected]: (state, action) => {
-      state.isLoading = false;
+      state.detailLoading = false;
       state.error = action.payload;
       state.orderDetail = true;
     },
@@ -137,11 +159,23 @@ const orderSlice = createSlice({
     [getOrderList.pending]: (state) => {
       state.isLoading = true;
     },
-    [getOrderList.fulfilled]: (state,action) => {
+    [getOrderList.fulfilled]: (state, action) => {
       state.isLoading = false;
       state.orderList = action.payload;
     },
-    [getOrderList.rejected]: (state,action) => {
+    [getOrderList.rejected]: (state, action) => {
+      state.isLoading = false;
+      state.orderList = null;
+      state.error = action.payload;
+    },
+    [getAdminOrderList.pending]: (state) => {
+      state.isLoading = true;
+    },
+    [getAdminOrderList.fulfilled]: (state, action) => {
+      state.isLoading = false;
+      state.orderList = action.payload;
+    },
+    [getAdminOrderList.rejected]: (state, action) => {
       state.isLoading = false;
       state.orderList = null;
       state.error = action.payload;
