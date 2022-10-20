@@ -4,7 +4,10 @@ import { getProductList } from "./productListSlice";
 
 const initialState = {
   product: {},
+  isLoading: true,
   Success: false,
+  reviewSuccess: false,
+  reviewLoading: false,
 };
 
 export const getProductDetail = createAsyncThunk(
@@ -42,7 +45,7 @@ export const createProduct = createAsyncThunk(
       });
       return response.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.respose.data.detail);
+      return thunkAPI.rejectWithValue(err.response.data.detail);
     }
   }
 );
@@ -69,7 +72,7 @@ export const updateProductDetail = createAsyncThunk(
       thunkAPI.dispatch(getProductList());
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.respose.data.detail);
+      return thunkAPI.rejectWithValue(error.response.data.detail);
     }
   }
 );
@@ -92,6 +95,30 @@ export const deleteProduct = createAsyncThunk(
       return response.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const createProductReview = createAsyncThunk(
+  "createProductReview",
+  async (data, thunkAPI) => {
+    const {
+      user: { userInfo },
+    } = thunkAPI.getState();
+    try {
+      const headers = {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${userInfo.token}`,
+      };
+      const response = await axios.post(
+        `/api/products/${data["id"]}/reviews/`,
+        data,
+        { headers }
+      );
+      thunkAPI.dispatch(getProductDetail());
+      return response.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response.data.detail);
     }
   }
 );
@@ -140,6 +167,18 @@ const productDetailSlice = createSlice({
       state.isLoading = false;
       state.Success = false;
       state.error = action.payload;
+    },
+    [createProductReview.pending]: (state) => {
+      state.reviewLoading = true;
+    },
+    [createProductReview.fulfilled]: (state) => {
+      state.reviewLoading = false;
+      state.reviewSuccess = true;
+    },
+    [createProductReview.rejected]: (state, action) => {
+      state.reviewLoading = false;
+      state.reviewSuccess = false;
+      state.reviewError = action.payload;
     },
   },
 });
