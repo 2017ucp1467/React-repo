@@ -4,7 +4,7 @@ import { getProductList } from "./productListSlice";
 
 const initialState = {
   product: {},
-  isLoading: true,
+  isLoading: false,
   Success: false,
   reviewSuccess: false,
   reviewLoading: false,

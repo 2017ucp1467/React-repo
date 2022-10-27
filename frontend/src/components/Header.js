@@ -6,6 +6,7 @@ import { userLogout } from "../features/user/userSlice";
 import { getUserDetail } from "../features/user/userDetailSlice";
 import { clearOrder, getOrderList } from "../features/order/orderSlice";
 import { clearUserList } from "../features/user/adminUserSlice";
+import SearchBox from "./SearchBox";
 function Header() {
   const user = useSelector((state) => state.user);
   const { userInfo } = user;
@@ -23,13 +24,14 @@ function Header() {
   };
   return (
     <header>
-      <Navbar bg='dark' variant='dark' expand='lg'>
+      <Navbar bg='dark' variant='dark' expand='lg' collapseOnSelect>
         <Container>
           <LinkContainer to='/'>
-            <Navbar.Brand>ProShop</Navbar.Brand>
+            <Navbar.Brand>SinghShop</Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
           <Navbar.Collapse id='basic-navbar-nav'>
+            <SearchBox />
             <Nav className='mr-auto'>
               <LinkContainer to='/cart'>
                 <Nav.Link href='/cart'>
@@ -63,7 +65,7 @@ function Header() {
                       Users
                     </NavDropdown.Item>
                   </LinkContainer>
-                  <LinkContainer to='/admin/products/'>
+                  <LinkContainer to='/admin/products?page=1'>
                     <NavDropdown.Item onClick={showProfile}>
                       Products
                     </NavDropdown.Item>

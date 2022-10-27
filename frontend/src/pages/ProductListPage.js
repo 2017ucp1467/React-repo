@@ -4,35 +4,40 @@ import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import ProductEditModal from "../components/ProductEditModal";
+import Paginate from "../components/Paginate";
 import { getProductList } from "../features/productList/productListSlice";
 import {
   getProductDetail,
   clearProductDetail,
   deleteProduct,
 } from "../features/productList/productDetailSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 function ProductListPage() {
   const [showModal, setShowModal] = useState(false);
   const [isCreate, setIsCreate] = useState(false);
+  const [searchParams] = useSearchParams();
 
-  const { isLoading, error, products } = useSelector(
+  const { isLoading, error, products, page, pages } = useSelector(
     (state) => state.productList
   );
-  const { product} = useSelector((state) => state.productDetail);
+  const { product } = useSelector((state) => state.productDetail);
   const { userInfo } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  let keyword = searchParams.get("keyword") ? searchParams.get("keyword") : "";
+  let pageParam = searchParams.get("page");
   useEffect(() => {
+    console.log("useEffect", pageParam, "and page", page);
     if (userInfo && userInfo.isAdmin) {
-      if (products.length === 0) {
-        dispatch(getProductList());
+      if (pageParam !== page) {
+        dispatch(getProductList({ keyword, page: pageParam }));
       }
     } else {
       navigate("/login");
     }
-  }, [dispatch, userInfo, navigate, products]);
+  }, [dispatch, userInfo, navigate, pageParam, page, keyword]);
 
   const updateProductHandler = (id) => {
     if (!product || product._id !== id) {
@@ -71,55 +76,61 @@ function ProductListPage() {
       ) : error ? (
         <Message variant='danger'>{error}</Message>
       ) : (
-        <Table striped bordered hover responsive className='table-sm'>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Brand</th>
-              <th>Category</th>
-              <th>InStock</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product._id}>
-                <td>{product._id}</td>
-                <td>{product.name}</td>
-                <td>${product.price}</td>
-                <td>{product.brand}</td>
-                <td>{product.category}</td>
-                <td>
-                  {product.countInStock ? (
-                    <i className='fas fa-check' style={{ color: "green" }}></i>
-                  ) : (
-                    <i className='fas fa-x' style={{ color: "red" }}></i>
-                  )}
-                </td>
-                <td>
-                  {/* <LinkContainer to={`/admin/product/${product._id}`}> */}
-                  <Button
-                    variant='light'
-                    className='btn-sm'
-                    onClick={() => updateProductHandler(product._id)}
-                  >
-                    <i className='fas fa-edit'></i>
-                  </Button>
-                  {/* </LinkContainer> */}
-                  <Button
-                    variant='danger'
-                    className='btn-sm'
-                    onClick={() => deleteProductHandler(product._id)}
-                  >
-                    <i className='fas fa-trash'></i>
-                  </Button>
-                </td>
+        <div>
+          <Table striped bordered hover responsive className='table-sm'>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>InStock</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr key={product._id}>
+                  <td>{product._id}</td>
+                  <td>{product.name}</td>
+                  <td>${product.price}</td>
+                  <td>{product.brand}</td>
+                  <td>{product.category}</td>
+                  <td>
+                    {product.countInStock ? (
+                      <i
+                        className='fas fa-check'
+                        style={{ color: "green" }}
+                      ></i>
+                    ) : (
+                      <i className='fas fa-x' style={{ color: "red" }}></i>
+                    )}
+                  </td>
+                  <td>
+                    {/* <LinkContainer to={`/admin/product/${product._id}`}> */}
+                    <Button
+                      variant='light'
+                      className='btn-sm'
+                      onClick={() => updateProductHandler(product._id)}
+                    >
+                      <i className='fas fa-edit'></i>
+                    </Button>
+                    {/* </LinkContainer> */}
+                    <Button
+                      variant='danger'
+                      className='btn-sm'
+                      onClick={() => deleteProductHandler(product._id)}
+                    >
+                      <i className='fas fa-trash'></i>
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <Paginate pages={pages} page={page} isAdmin={true} keyword={keyword} />
+        </div>
       )}
       <ProductEditModal
         showModal={showModal}

@@ -14,6 +14,7 @@ import userReducer from "./features/user/userSlice";
 import userDetailReducer from "./features/user/userDetailSlice";
 import orderReducer from "./features/order/orderSlice";
 import adminReducer from "./features/user/adminUserSlice";
+import carouselReducer from "./features/productList/carousel";
 
 const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ const store = configureStore({
     userProfile: userDetailReducer,
     order: orderReducer,
     admin: adminReducer,
+    carousel: carouselReducer,
   },
 });
 
